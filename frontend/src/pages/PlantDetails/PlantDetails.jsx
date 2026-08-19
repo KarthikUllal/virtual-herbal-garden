@@ -1,24 +1,88 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+
 import usePlant from "../../hooks/usePlant";
+import { useAuth } from "../../context/AuthContext";
+
 import PlantImageGallery from "../../components/PlantImageGallery";
 import PlantVideo from "../../components/PlantVideo";
 import PlantAudio from "../../components/PlantAudio";
 
+import {
+  addBookmark,
+  removeBookmark,
+  checkBookmark
+} from "../../services/bookmark.service";
+import PlantDetailsSkeleton from "../../components/PlantDetailsSkeleton";
+
 const PlantDetails = () => {
   const { plant, loading, error } = usePlant();
 
+  const { isAuthenticated } = useAuth();
+
+  const [bookmarked, setBookmarked] = useState(false);
+  const [bookmarkLoading, setBookmarkLoading] = useState(false);
+
+  // Check bookmark status
+  useEffect(() => {
+    const loadBookmarkStatus = async () => {
+      if (!isAuthenticated || !plant?._id) {
+        return;
+      }
+
+      try {
+        const response = await checkBookmark(plant._id);
+
+        setBookmarked(response.data.bookmarked);
+      } catch (error) {
+        console.error(
+          "Failed to check bookmark:",
+          error
+        );
+      }
+    };
+
+    loadBookmarkStatus();
+  }, [isAuthenticated, plant?._id]);
+
+  // Add / remove bookmark
+  const handleBookmark = async () => {
+    if (!isAuthenticated) {
+      return;
+    }
+
+    setBookmarkLoading(true);
+
+    try {
+      if (bookmarked) {
+        await removeBookmark(plant._id);
+
+        setBookmarked(false);
+      } else {
+        await addBookmark(plant._id);
+
+        setBookmarked(true);
+      }
+    } catch (error) {
+      console.error(
+        "Bookmark action failed:",
+        error
+      );
+    } finally {
+      setBookmarkLoading(false);
+    }
+  };
+
   if (loading) {
-    return (
-      <main className="flex min-h-screen items-center justify-center bg-[#f7faf5]">
-        <p className="text-green-700">Loading plant...</p>
-      </main>
-    );
-  }
+  return <PlantDetailsSkeleton />;
+}
 
   if (error) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#f7faf5]">
-        <p className="text-red-600">{error}</p>
+        <p className="text-red-600">
+          {error}
+        </p>
       </main>
     );
   }
@@ -26,13 +90,16 @@ const PlantDetails = () => {
   if (!plant) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#f7faf5]">
-        <p className="text-gray-600">Plant not found.</p>
+        <p className="text-gray-600">
+          Plant not found.
+        </p>
       </main>
     );
   }
 
   return (
     <main className="min-h-screen bg-[#f7faf5]">
+
       {/* Header */}
       <section className="border-b border-green-100 bg-white">
         <div className="mx-auto max-w-7xl px-6 py-8">
@@ -48,11 +115,16 @@ const PlantDetails = () => {
       {/* Main Plant Section */}
       <section className="mx-auto max-w-7xl px-6 py-12">
         <div className="grid gap-10 lg:grid-cols-2">
+
           {/* Image */}
-          <PlantImageGallery images={plant.images} plantName={plant.name} />
+          <PlantImageGallery
+            images={plant.images}
+            plantName={plant.name}
+          />
 
           {/* Basic Information */}
           <div className="flex flex-col justify-center">
+
             <span className="w-fit rounded-full bg-green-100 px-4 py-2 text-sm font-medium text-green-700">
               {plant.type}
             </span>
@@ -65,46 +137,70 @@ const PlantDetails = () => {
               {plant.botanicalName}
             </p>
 
+            {/* Bookmark */}
+            {isAuthenticated && (
+              <button
+                onClick={handleBookmark}
+                disabled={bookmarkLoading}
+                className={`mt-6 w-fit rounded-full px-5 py-2.5 text-sm font-semibold transition ${
+                  bookmarked
+                    ? "bg-green-100 text-green-800 hover:bg-green-200"
+                    : "bg-green-700 text-white hover:bg-green-800"
+                } disabled:cursor-not-allowed disabled:opacity-60`}
+              >
+                {bookmarkLoading
+                  ? "Saving..."
+                  : bookmarked
+                    ? "🔖 Saved"
+                    : "🔖 Save Plant"}
+              </button>
+            )}
+
+            {/* Common Names */}
             <div className="mt-8">
               <h2 className="text-sm font-semibold uppercase tracking-widest text-green-600">
                 Common Names
               </h2>
 
               <div className="mt-3 flex flex-wrap gap-2">
-                {plant.commonNames?.map((name, index) => (
-                  <span
-                    key={index}
-                    className="rounded-full border border-green-200 bg-white px-4 py-2 text-sm text-gray-700"
-                  >
-                    {name}
-                  </span>
-                ))}
+                {plant.commonNames?.map(
+                  (name, index) => (
+                    <span
+                      key={index}
+                      className="rounded-full border border-green-200 bg-white px-4 py-2 text-sm text-gray-700"
+                    >
+                      {name}
+                    </span>
+                  )
+                )}
               </div>
             </div>
 
-           <div className="mt-8 grid gap-4 sm:grid-cols-2">
+            {/* Region & Habitat */}
+            <div className="mt-8 grid gap-4 sm:grid-cols-2">
 
-    <div className="rounded-2xl border border-green-100 bg-green-50/50 p-5">
-        <p className="text-xs font-semibold uppercase tracking-wider text-green-600">
-            Region
-        </p>
+              <div className="rounded-2xl border border-green-100 bg-green-50/50 p-5">
+                <p className="text-xs font-semibold uppercase tracking-wider text-green-600">
+                  Region
+                </p>
 
-        <p className="mt-2 leading-6 text-gray-700">
-            {plant.region}
-        </p>
-    </div>
+                <p className="mt-2 leading-6 text-gray-700">
+                  {plant.region}
+                </p>
+              </div>
 
-    <div className="rounded-2xl border border-green-100 bg-green-50/50 p-5">
-        <p className="text-xs font-semibold uppercase tracking-wider text-green-600">
-            Habitat
-        </p>
+              <div className="rounded-2xl border border-green-100 bg-green-50/50 p-5">
+                <p className="text-xs font-semibold uppercase tracking-wider text-green-600">
+                  Habitat
+                </p>
 
-        <p className="mt-2 leading-6 text-gray-700">
-            {plant.habitat}
-        </p>
-    </div>
+                <p className="mt-2 leading-6 text-gray-700">
+                  {plant.habitat}
+                </p>
+              </div>
 
-</div>
+            </div>
+
           </div>
         </div>
       </section>
@@ -112,9 +208,12 @@ const PlantDetails = () => {
       {/* Plant Information */}
       <section className="border-t border-green-100 bg-white">
         <div className="mx-auto max-w-7xl px-6 py-16">
+
           <div className="grid gap-12 lg:grid-cols-2">
+
             {/* Medicinal Uses */}
             <div>
+
               <p className="text-sm font-semibold uppercase tracking-widest text-green-600">
                 Traditional Knowledge
               </p>
@@ -124,19 +223,26 @@ const PlantDetails = () => {
               </h2>
 
               <div className="mt-6 space-y-4">
-                {plant.medicinalUses?.map((use, index) => (
-                  <div
-                    key={index}
-                    className="rounded-2xl border border-green-100 bg-green-50/50 p-5"
-                  >
-                    <p className="leading-7 text-gray-700">{use}</p>
-                  </div>
-                ))}
+
+                {plant.medicinalUses?.map(
+                  (use, index) => (
+                    <div
+                      key={index}
+                      className="rounded-2xl border border-green-100 bg-green-50/50 p-5"
+                    >
+                      <p className="leading-7 text-gray-700">
+                        {use}
+                      </p>
+                    </div>
+                  )
+                )}
+
               </div>
             </div>
 
             {/* Cultivation */}
             <div>
+
               <p className="text-sm font-semibold uppercase tracking-widest text-green-600">
                 Growing Information
               </p>
@@ -150,7 +256,9 @@ const PlantDetails = () => {
                   {plant.cultivationMethod}
                 </p>
               </div>
+
             </div>
+
           </div>
         </div>
       </section>
@@ -158,8 +266,10 @@ const PlantDetails = () => {
       {/* Media Section */}
       <section className="bg-[#f7faf5]">
         <div className="mx-auto max-w-7xl px-6 py-16">
+
           {/* Section Header */}
           <div className="mb-10">
+
             <p className="text-sm font-semibold uppercase tracking-widest text-green-600">
               Experience
             </p>
@@ -172,18 +282,28 @@ const PlantDetails = () => {
               Learn more about {plant.name} through visual and audio
               experiences.
             </p>
+
           </div>
 
           {/* Media Grid */}
           <div className="grid gap-6 lg:grid-cols-2">
+
             {/* Video */}
-            <PlantVideo video={plant.video} plantName={plant.name} />
+            <PlantVideo
+              video={plant.video}
+              plantName={plant.name}
+            />
 
             {/* Audio */}
-            <PlantAudio audio={plant.audio} plantName={plant.name} />
+            <PlantAudio
+              audio={plant.audio}
+              plantName={plant.name}
+            />
+
           </div>
         </div>
       </section>
+
     </main>
   );
 };

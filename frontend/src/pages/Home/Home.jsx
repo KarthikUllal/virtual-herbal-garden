@@ -1,4 +1,6 @@
 import { Link } from "react-router-dom";
+import FeaturedPlants from "../../components/FeaturedPlants";
+import GardenFeatures from "../../components/GardenFeatures";
 
 const Home = () => {
     return (
@@ -86,6 +88,10 @@ const Home = () => {
 
                 </div>
             </section>
+             {/* Featured Plants */}
+             <FeaturedPlants />
+             {/* Garden Features */}
+             <GardenFeatures />
 
         </main>
     );
