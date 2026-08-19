@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import usePlant from "../../hooks/usePlant";
 import PlantImageGallery from "../../components/PlantImageGallery";
+import PlantVideo from "../../components/PlantVideo";
+import PlantAudio from "../../components/PlantAudio";
 
 const PlantDetails = () => {
   const { plant, loading, error } = usePlant();
@@ -80,23 +82,29 @@ const PlantDetails = () => {
               </div>
             </div>
 
-            <div className="mt-8 grid gap-6 sm:grid-cols-2">
-              <div>
-                <p className="text-sm font-semibold text-gray-900">Region</p>
+           <div className="mt-8 grid gap-4 sm:grid-cols-2">
 
-                <p className="mt-2 text-sm leading-6 text-gray-600">
-                  {plant.region}
-                </p>
-              </div>
+    <div className="rounded-2xl border border-green-100 bg-green-50/50 p-5">
+        <p className="text-xs font-semibold uppercase tracking-wider text-green-600">
+            Region
+        </p>
 
-              <div>
-                <p className="text-sm font-semibold text-gray-900">Habitat</p>
+        <p className="mt-2 leading-6 text-gray-700">
+            {plant.region}
+        </p>
+    </div>
 
-                <p className="mt-2 text-sm leading-6 text-gray-600">
-                  {plant.habitat}
-                </p>
-              </div>
-            </div>
+    <div className="rounded-2xl border border-green-100 bg-green-50/50 p-5">
+        <p className="text-xs font-semibold uppercase tracking-wider text-green-600">
+            Habitat
+        </p>
+
+        <p className="mt-2 leading-6 text-gray-700">
+            {plant.habitat}
+        </p>
+    </div>
+
+</div>
           </div>
         </div>
       </section>
@@ -150,6 +158,7 @@ const PlantDetails = () => {
       {/* Media Section */}
       <section className="bg-[#f7faf5]">
         <div className="mx-auto max-w-7xl px-6 py-16">
+          {/* Section Header */}
           <div className="mb-10">
             <p className="text-sm font-semibold uppercase tracking-widest text-green-600">
               Experience
@@ -158,54 +167,20 @@ const PlantDetails = () => {
             <h2 className="mt-3 text-3xl font-bold text-green-950">
               Explore {plant.name}
             </h2>
+
+            <p className="mt-3 max-w-2xl leading-7 text-gray-600">
+              Learn more about {plant.name} through visual and audio
+              experiences.
+            </p>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-3">
+          {/* Media Grid */}
+          <div className="grid gap-6 lg:grid-cols-2">
             {/* Video */}
-            <div className="rounded-2xl border border-green-100 bg-white p-6 shadow-sm">
-              <div className="text-3xl">🎥</div>
-
-              <h3 className="mt-4 text-lg font-semibold">Video</h3>
-
-              <p className="mt-2 text-sm leading-6 text-gray-600">
-                Learn more about this plant through an interactive video
-                experience.
-              </p>
-
-              <div className="mt-5 rounded-xl bg-gray-50 p-4 text-center text-sm text-gray-400">
-                Video coming soon
-              </div>
-            </div>
+            <PlantVideo video={plant.video} plantName={plant.name} />
 
             {/* Audio */}
-            <div className="rounded-2xl border border-green-100 bg-white p-6 shadow-sm">
-              <div className="text-3xl">🔊</div>
-
-              <h3 className="mt-4 text-lg font-semibold">Audio Guide</h3>
-
-              <p className="mt-2 text-sm leading-6 text-gray-600">
-                Listen to information about the plant and its traditional uses.
-              </p>
-
-              <div className="mt-5 rounded-xl bg-gray-50 p-4 text-center text-sm text-gray-400">
-                Audio coming soon
-              </div>
-            </div>
-
-            {/* 3D */}
-            <div className="rounded-2xl border border-green-100 bg-white p-6 shadow-sm">
-              <div className="text-3xl">🧊</div>
-
-              <h3 className="mt-4 text-lg font-semibold">3D Model</h3>
-
-              <p className="mt-2 text-sm leading-6 text-gray-600">
-                Explore an interactive 3D representation of the plant.
-              </p>
-
-              <div className="mt-5 rounded-xl bg-gray-50 p-4 text-center text-sm text-gray-400">
-                3D model coming soon
-              </div>
-            </div>
+            <PlantAudio audio={plant.audio} plantName={plant.name} />
           </div>
         </div>
       </section>
