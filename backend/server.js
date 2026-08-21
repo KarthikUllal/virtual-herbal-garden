@@ -7,6 +7,7 @@ const plantRouter = require("./routes/v1/plant.routes");
 const authRouter = require("./routes/v1/auth.routes");
 const bookmarkRouter = require("./routes/v1/bookmark.routes");
 const userRouter = require("./routes/v1/user.routes");
+const adminRouter = require("./routes/v1/admin.routes");
 
 
 const app = express();
@@ -30,6 +31,9 @@ app.use("/api/v1/bookmarks", bookmarkRouter);
 
 // User routes
 app.use("/api/v1/users", userRouter);
+
+// Admin routes
+app.use("/api/v1/admin", adminRouter);
 
 
 

@@ -2,6 +2,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const userModel = require("../models/user.model");
 require("dotenv").config();
+
 const registerUser = async (name, email, password) => {
     const existingUser = await userModel.findOne({ email });
 
@@ -20,9 +21,11 @@ const registerUser = async (name, email, password) => {
     return {
         id: user._id,
         name: user.name,
-        email: user.email
+        email: user.email,
+        role: user.role
     };
 };
+
 
 const loginUser = async (email, password) => {
     const user = await userModel.findOne({ email });
@@ -55,10 +58,12 @@ const loginUser = async (email, password) => {
         user: {
             id: user._id,
             name: user.name,
-            email: user.email
+            email: user.email,
+            role: user.role
         }
     };
 };
+
 
 module.exports = {
     registerUser,
