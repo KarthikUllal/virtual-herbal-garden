@@ -32,11 +32,21 @@ const Login = () => {
     setLoading(true);
 
     try {
-      await login(formData);
+      const response = await login(formData);
 
-      const from = location.state?.from?.pathname || "/";
+      if(response.data.user.role === "admin") {
+        navigate("/admin", { replace: true });
+      } else {
+        navigate("/", { replace: true });
+      }
 
-      navigate(from, { replace: true });
+
+
+    //   const from = location.state?.from?.pathname || "/";
+
+
+
+    //   navigate(from, { replace: true });
     } catch (error) {
       setError(error.response?.data?.message || "Login failed");
     } finally {
