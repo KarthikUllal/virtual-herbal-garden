@@ -13,6 +13,8 @@ import Login from "./pages/Auth/Login";
 import MyBookmarks from "./pages/Bookmarks/MyBookmarks";
 import Profile from "./pages/Profile/Profile";
 
+
+
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
 
@@ -39,7 +41,10 @@ const App = () => {
           {/* Protected */}
           <Route element={<ProtectedRoute />}>
             <Route path="/bookmarks" element={<MyBookmarks />} />
+
             <Route path="/profile" element={<Profile />} />
+
+        
           </Route>
         </Route>
 
@@ -47,7 +52,6 @@ const App = () => {
 
         <Route element={<AdminRoute />}>
           <Route path="/admin" element={<AdminLayout />}>
-            
             {/* /admin */}
             <Route index element={<AdminDashboard />} />
 
@@ -58,11 +62,7 @@ const App = () => {
             <Route path="plants/add" element={<AddPlant />} />
 
             {/* /admin/plants/edit/:id */}
-            <Route
-              path="plants/edit/:id"
-              element={<AddPlant />}
-            />
-
+            <Route path="plants/edit/:id" element={<AddPlant />} />
           </Route>
         </Route>
       </Routes>
