@@ -8,7 +8,9 @@ const authRouter = require("./routes/v1/auth.routes");
 const bookmarkRouter = require("./routes/v1/bookmark.routes");
 const userRouter = require("./routes/v1/user.routes");
 const adminRouter = require("./routes/v1/admin.routes");
-
+const conversationRoutes = require("./routes/v1/conversation.routes");
+const messageRoutes = require("./routes/v1/message.routes");
+const chatRoutes = require("./routes/v1/chat.routes");
 
 const app = express();
 
@@ -34,6 +36,15 @@ app.use("/api/v1/users", userRouter);
 
 // Admin routes
 app.use("/api/v1/admin", adminRouter);
+
+// Conversation routes
+app.use("/api/v1/conversations", conversationRoutes);
+
+// Message routes
+app.use("/api/v1/messages", messageRoutes);
+
+// Chat routes
+app.use("/api/v1/chat", chatRoutes);
 
 
 
