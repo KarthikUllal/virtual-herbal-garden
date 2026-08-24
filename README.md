@@ -468,6 +468,15 @@ React + Vite
        ▼
 Production Backend API
 ```
+## 📸 Screenshots
+### 🏠 Home Page
+<img width="1515" height="725" alt="image" src="https://github.com/user-attachments/assets/15f0428a-624f-4ee6-a5c8-40c5dee258dc" />
+
+### 🌱 Plants
+<img width="1505" height="720" alt="image" src="https://github.com/user-attachments/assets/ea0ec3a4-359a-46fe-b983-71775147ab1e" />
+
+### 🤖 AI Herbal Assistant
+<img width="1506" height="718" alt="image" src="https://github.com/user-attachments/assets/98e80c3e-8cdb-44f6-89a5-d7d616b7f99b" />
 
 ### Production Backend
 
