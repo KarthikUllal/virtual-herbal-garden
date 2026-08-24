@@ -478,6 +478,20 @@ Production Backend API
 ### 🤖 AI Herbal Assistant
 <img width="1506" height="718" alt="image" src="https://github.com/user-attachments/assets/98e80c3e-8cdb-44f6-89a5-d7d616b7f99b" />
 
+### Admin Page
+<img width="1512" height="726" alt="image" src="https://github.com/user-attachments/assets/cbb1ddc4-b168-4720-aaa8-7eec990e132c" />
+
+### Admin Manage Page 
+<img width="1505" height="720" alt="image" src="https://github.com/user-attachments/assets/2e33297a-16a3-4ef5-a8e3-9c8dbf1c61d1" />
+
+### Admin Add plant Page 
+<img width="1511" height="728" alt="image" src="https://github.com/user-attachments/assets/33f9e4f3-ffa6-48f9-942f-6082d58a40de" />
+
+
+
+
+
+
 ### Production Backend
 
 https://virtual-herbal-garden-api.onrender.com
