@@ -7,7 +7,7 @@ The application includes an AI chatbot that can retrieve information from the pl
 ## 🚀 Live Demo
 
 **Frontend:**  
-PASTE YOUR FRONTEND RENDER URL HERE
+https://virtual-herbal-garden-frontend.onrender.com/
 
 **Backend API:**  
 https://virtual-herbal-garden-api.onrender.com
