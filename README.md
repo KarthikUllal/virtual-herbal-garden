@@ -76,3 +76,35 @@ The chatbot uses an AI agent with two main tools:
              └────────┬────────┘
                       ▼
                  AI Response
+
+## Technologies Used
+Frontend
+React.js
+Vite
+Tailwind CSS
+React Router
+Axios
+Backend
+Node.js
+Express.js
+REST APIs
+JWT
+bcryptjs
+Database
+MongoDB
+Mongoose
+AI
+Google Gemini API
+AI Agent / Tool Calling
+Web Search
+Tavily API
+Image & File Management
+Cloudinary
+Multer
+Development Tools
+Git
+GitHub
+Postman
+VS Code
+Deployment
+Render
