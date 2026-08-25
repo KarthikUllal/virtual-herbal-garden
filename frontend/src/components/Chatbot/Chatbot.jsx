@@ -230,18 +230,7 @@ const Chatbot = () => {
       {isOpen && (
         <div
           className="
-                        fixed
-                        bottom-6
-                        right-6
-                        z-50
-                        flex
-                        h-[550px]
-                        w-[380px]
-                        flex-col
-                        overflow-hidden
-                        rounded-2xl
-                        bg-white
-                        shadow-2xl
+                       fixed bottom-0 right-0 z-50 flex h-[100dvh] w-full flex-col overflow-hidden bg-white shadow-2xl sm:bottom-6 sm:right-6 sm:h-[550px] sm:w-[380px] sm:rounded-2xl
                     "
         >
           {/* Header */}
@@ -335,27 +324,26 @@ const Chatbot = () => {
               <div
                 key={index}
                 className={`
-                                        flex
-                                        ${
-                                          message.role === "user"
-                                            ? "justify-end"
-                                            : "justify-start"
-                                        }
-                                    `}
+      flex
+      ${message.role === "user" ? "justify-end" : "justify-start"}
+    `}
               >
                 <div
                   className={`
-                                            max-w-[85%]
-                                            rounded-2xl
-                                            px-3
-                                            py-2
-                                            text-sm
-                                            ${
-                                              message.role === "user"
-                                                ? "bg-green-600 text-white"
-                                                : "bg-white text-gray-800 shadow-sm"
-                                            }
-                                        `}
+    max-w-[85%]
+    min-w-0
+    break-words
+    overflow-hidden
+    rounded-2xl
+    px-3
+    py-2
+    text-sm
+    ${
+      message.role === "user"
+        ? "bg-green-600 text-white"
+        : "bg-white text-gray-800 shadow-sm"
+    }
+  `}
                 >
                   {message.role === "assistant" ? (
                     <ReactMarkdown
@@ -397,6 +385,17 @@ const Chatbot = () => {
                         strong: ({ children }) => (
                           <strong className="font-semibold">{children}</strong>
                         ),
+
+                        a: ({ children, href }) => (
+                          <a
+                            href={href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="break-all text-green-600 underline hover:text-green-800"
+                          >
+                            {children}
+                          </a>
+                        ),
                       }}
                     >
                       {formatMessage(message.content)}
@@ -407,7 +406,6 @@ const Chatbot = () => {
                 </div>
               </div>
             ))}
-
             {/* Loading */}
 
             {loading && (
