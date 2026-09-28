@@ -20,31 +20,32 @@ const chat = async (req, res) => {
             });
         }
 
-        // 2. Save user's message
-        await Message.create({
-            conversationId,
-            role: "user",
-            content: message
-        });
-
-        // 3. Get previous messages
+        // 2. Get previous messages BEFORE saving the current message
         const previousMessages = await Message.find({
             conversationId
         }).sort({
             createdAt: 1
         });
 
-        // 4. Send conversation history to AI
+        // 3. Send conversation history to AI
         const aiResponse = await runHerbalAgent(
             message,
             previousMessages
         );
 
+        // 4. Save user's message
+        await Message.create({
+            conversationId,
+            role: "user",
+            content: message
+        });
+
         // 5. Save AI response
         const assistantMessage = await Message.create({
             conversationId,
             role: "assistant",
-            content: aiResponse
+            content: aiResponse.content,
+            sources: aiResponse.sources
         });
 
         // 6. Return response

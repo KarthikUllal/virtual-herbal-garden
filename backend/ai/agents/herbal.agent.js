@@ -1,185 +1,242 @@
-const OpenAI = require("openai");
+const { llm, model } = require("../../config/llm");
 
 const { getPlantDetails } = require("../tools/plant.tool");
 const { webSearch } = require("../tools/websearch.tool");
-const { herbalSystemPrompt } = require("../prompts/herbal.prompt");
 
-const nvidia = new OpenAI({
-    apiKey: process.env.NVIDIA_API_KEY,
-    baseURL: "https://integrate.api.nvidia.com/v1"
-});
+const {
+    plantTool,
+    webSearchTool
+} = require("../tools/tool.definitions");
 
-const plantTool = {
-    type: "function",
+const {
+    herbalSystemPrompt
+} = require("../prompts/herbal.prompt");
 
-    function: {
-        name: "getPlantDetails",
+const {
+    cleanMarkdown
+} = require("../../utils/markdown.util");
 
-        description:
-            "Get detailed information about a medicinal plant from the Virtual Herbal Garden database.",
+const tools = [
+    plantTool,
+    webSearchTool
+];
 
-        parameters: {
-            type: "object",
-
-            properties: {
-                plantName: {
-                    type: "string",
-                    description:
-                        "The name of the medicinal plant to search for."
-                }
-            },
-
-            required: ["plantName"]
-        }
-    }
-};
-
-const webSearchTool = {
-    type: "function",
-
-    function: {
-        name: "webSearch",
-
-        description:
-            "Search the internet for current or additional information about medicinal plants. Use this when the user's question requires recent, external, or detailed information that may not be available in the plant database.",
-
-        parameters: {
-            type: "object",
-
-            properties: {
-                query: {
-                    type: "string",
-                    description:
-                        "The search query to use when searching the web."
-                }
-            },
-
-            required: ["query"]
-        }
-    }
-};
-
-const runHerbalAgent = async (message, previousMessages = []) => {
+const runHerbalAgent = async (
+    message,
+    previousMessages = []
+) => {
     try {
         const messages = [
             {
                 role: "system",
                 content: herbalSystemPrompt
             },
+
             ...previousMessages.map((msg) => ({
                 role: msg.role,
                 content: msg.content
             })),
+
             {
                 role: "user",
                 content: message
             }
         ];
 
-        const response = await nvidia.chat.completions.create({
-            model: "meta/llama-3.1-8b-instruct",
+        const sources = [];
 
-            messages,
+        const maxIterations = 4;
 
-            tools: [
-                plantTool,
-                webSearchTool
-            ],
-
-            tool_choice: "auto",
-
-            temperature: 0.2,
-
-            max_tokens: 1000
-        });
-
-        const assistantMessage = response.choices[0].message;
-
-        if (
-            !assistantMessage.tool_calls ||
-            assistantMessage.tool_calls.length === 0
+        for (
+            let iteration = 0;
+            iteration < maxIterations;
+            iteration++
         ) {
-            return assistantMessage.content;
-        }
+            const response =
+                await llm.chat.completions.create({
+                    model,
 
-        const toolCall = assistantMessage.tool_calls[0];
+                    messages,
 
-        console.log("\nAI TOOL CALL:");
-        console.log(toolCall);
+                    tools,
 
-        messages.push(assistantMessage);
+                    tool_choice: "auto",
 
-        const toolName = toolCall.function.name;
+                    temperature: 0.2,
 
-        const args = JSON.parse(
-            toolCall.function.arguments
-        );
+                    max_tokens: 1500
+                });
 
-        let toolResult;
+            const assistantMessage =
+                response.choices[0].message;
 
-        if (toolName === "getPlantDetails") {
+            if (
+                !assistantMessage.tool_calls ||
+                assistantMessage.tool_calls.length === 0
+            ) {
+                return {
+                    content: cleanMarkdown(
+                        assistantMessage.content
+                    ),
+                    sources
+                };
+            }
 
-            const plantName = args.plantName;
+            console.log("\nAI TOOL CALLS:");
 
-            console.log("\nPLANT NAME:");
-            console.log(plantName);
-
-            toolResult = await getPlantDetails(
-                plantName
+            console.dir(
+                assistantMessage.tool_calls,
+                {
+                    depth: null
+                }
             );
 
-            console.log("\nPLANT TOOL RESULT:");
-            console.log(toolResult);
+            messages.push(assistantMessage);
+
+            for (
+                const toolCall
+                of assistantMessage.tool_calls
+            ) {
+                const toolName =
+                    toolCall.function.name;
+
+                let args;
+
+                try {
+                    args = JSON.parse(
+                        toolCall.function.arguments
+                    );
+                } catch (error) {
+                    console.error(
+                        "Invalid tool arguments:",
+                        toolCall.function.arguments
+                    );
+
+                    messages.push({
+                        role: "tool",
+                        tool_call_id: toolCall.id,
+                        content: JSON.stringify({
+                            success: false,
+                            message:
+                                "Invalid tool arguments"
+                        })
+                    });
+
+                    continue;
+                }
+
+                let toolResult;
+
+                if (
+                    toolName ===
+                    "getPlantDetails"
+                ) {
+                    console.log(
+                        "\nPLANT NAME:"
+                    );
+
+                    console.log(
+                        args.plantName
+                    );
+
+                    toolResult =
+                        await getPlantDetails(
+                            args.plantName
+                        );
+
+                    console.log(
+                        "\nPLANT TOOL RESULT:"
+                    );
+
+                    console.log(
+                        toolResult
+                    );
+                }
+
+                else if (
+                    toolName ===
+                    "webSearch"
+                ) {
+                    console.log(
+                        "\nWEB SEARCH QUERY:"
+                    );
+
+                    console.log(
+                        args.query
+                    );
+
+                    toolResult =
+                        await webSearch(
+                            args.query
+                        );
+
+                    console.log(
+                        "\nWEB SEARCH TOOL RESULT:"
+                    );
+
+                    console.log(
+                        toolResult
+                    );
+
+                    if (
+                        toolResult.success &&
+                        toolResult.results
+                    ) {
+                        toolResult.results.forEach(
+                            (result) => {
+                                if (
+                                    result.url &&
+                                    !sources.some(
+                                        (source) =>
+                                            source.url ===
+                                            result.url
+                                    )
+                                ) {
+                                    sources.push({
+                                        id: `source-${sources.length + 1}`,
+                                        title:
+                                            result.title,
+                                        url:
+                                            result.url
+                                    });
+                                }
+                            }
+                        );
+                    }
+                }
+
+                else {
+                    toolResult = {
+                        success: false,
+                        message:
+                            `Unknown tool: ${toolName}`
+                    };
+                }
+
+                messages.push({
+                    role: "tool",
+                    tool_call_id:
+                        toolCall.id,
+                    content:
+                        JSON.stringify(
+                            toolResult
+                        )
+                });
+            }
         }
 
-        else if (toolName === "webSearch") {
-
-            const query = args.query;
-
-            console.log("\nWEB SEARCH QUERY:");
-            console.log(query);
-
-            toolResult = await webSearch(
-                query
-            );
-
-            console.log("\nWEB SEARCH TOOL RESULT:");
-            console.log(toolResult);
-        }
-
-        else {
-            toolResult = {
-                success: false,
-                message: `Unknown tool: ${toolName}`
-            };
-        }
-
-        messages.push({
-            role: "tool",
-
-            tool_call_id: toolCall.id,
-
-            content: JSON.stringify(toolResult)
-        });
-
-        const finalResponse =
-            await nvidia.chat.completions.create({
-                model: "meta/llama-3.1-8b-instruct",
-
-                messages,
-
-                temperature: 0.2,
-
-                max_tokens: 1000
-            });
-
-        return finalResponse.choices[0].message.content;
+        return {
+            content: cleanMarkdown(
+                "I couldn't complete the request."
+            ),
+            sources
+        };
 
     } catch (error) {
-
         console.error(
             "Herbal agent error:",
-            error.response?.data || error.message
+            error.response?.data ||
+            error.message
         );
 
         throw new Error(
@@ -191,4 +248,3 @@ const runHerbalAgent = async (message, previousMessages = []) => {
 module.exports = {
     runHerbalAgent
 };
-

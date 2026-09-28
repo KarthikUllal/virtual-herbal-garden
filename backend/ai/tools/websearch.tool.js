@@ -11,9 +11,16 @@ const webSearch = async (query) => {
             maxResults: 5
         });
 
+        const results = response.results.map((result, index) => ({
+            id: `source-${index + 1}`,
+            title: result.title,
+            url: result.url,
+            content: result.content
+        }));
+
         return {
             success: true,
-            data: response.results
+            results
         };
 
     } catch (error) {

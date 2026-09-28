@@ -17,7 +17,15 @@ const messageSchema = new mongoose.Schema(
         content: {
             type: String,
             required: true
-        }
+        },
+
+        sources: [
+            {
+                id: String,
+                title: String,
+                url: String
+            }
+        ]
     },
     {
         timestamps: true
